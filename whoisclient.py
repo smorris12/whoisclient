@@ -1,4 +1,5 @@
 __author__ = 'smorris'
+#!
 
 # Just experimenting with a whois client
 
@@ -39,8 +40,8 @@ if __name__ == "__main__":
     try:
         input_site = sys.argv[1]
     except:
-        print "Please enter a site name for us to parse"
-        exit()
+        input_site = raw_input('Please enter an address to whois: ')
+
     who_server = querywhois_server_list(parse_domain(input_site))
 
     # If the domain can't be parsed or their is no whois server
