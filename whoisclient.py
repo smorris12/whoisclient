@@ -1,5 +1,5 @@
 __author__ = 'smorris'
-#!
+
 
 # Just experimenting with a whois client
 
@@ -23,17 +23,29 @@ def querywhois(server, domain):
 
 def querywhois_server_list(domain):
     #parse the whois server list to find the right server for domain
-    server_list = open('whois-servers.txt', 'r')
-    whois_server = False
-    for line in server_list:
-        if domain == line[:line.find(" ")]:
-            whois_server = line[line.find(" "):].strip()
-    return whois_server
+
+    # Let's test if it is a ip address though
+    if domain[0] == "n":
+        return 'whois.arin.net'
+    else:
+        server_list = open('whois-servers.txt', 'r')
+        whois_server = False
+        for line in server_list:
+            if domain == line[:line.find(" ")]:
+                whois_server = line[line.find(" "):].strip()
+        return whois_server
 
 def parse_domain(site):
     # Parse the address for a top level domain
     top_domain = site[site.rindex(".") + 1:]
-    return top_domain
+
+    #if numeric, parse this differently
+    try:
+        result = int(top_domain)
+        top_domain = "n " + str(result)
+        return top_domain
+    except:
+        return top_domain
 
 if __name__ == "__main__":
     # Get 1st argument from the command line
@@ -46,6 +58,6 @@ if __name__ == "__main__":
 
     # If the domain can't be parsed or their is no whois server
     if who_server == False:
-        print 'Domain not found'
+        print 'Domain does not have a valid whois server'
     else:
         print querywhois(who_server, input_site)
