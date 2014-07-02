@@ -11,6 +11,7 @@ import sys
 
 # function with sockets to open and read data from a whois query
 def querywhois(server, domain):
+    print server, domain, type(domain)
     #setup a connection to specified server
     whoissocket = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
     whoissocket.connect((server, 43))
@@ -25,9 +26,10 @@ def querywhois_server_list(domain):
     #parse the whois server list to find the right server for domain
 
     # Let's test if it is a ip address though
-    if domain[0] == "n":
+    try:
+        is_number = int(domain)
         return 'whois.arin.net'
-    else:
+    except:
         server_list = open('whois-servers.txt', 'r')
         whois_server = False
         for line in server_list:
@@ -38,14 +40,16 @@ def querywhois_server_list(domain):
 def parse_domain(site):
     # Parse the address for a top level domain
     top_domain = site[site.rindex(".") + 1:]
+    return top_domain
 
-    #if numeric, parse this differently
+def format_query(query_site):
+    # Determine if commands need to be added to the query
     try:
-        result = int(top_domain)
-        top_domain = "n " + str(result)
-        return top_domain
+        is_number = int(query_site[0])
+        output_site = "n " + query_site
+        return output_site
     except:
-        return top_domain
+        return query_site
 
 if __name__ == "__main__":
     # Get 1st argument from the command line
@@ -60,4 +64,4 @@ if __name__ == "__main__":
     if who_server == False:
         print 'Domain does not have a valid whois server'
     else:
-        print querywhois(who_server, input_site)
+        print querywhois(who_server, format_query(input_site))
