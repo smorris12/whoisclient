@@ -1,31 +1,21 @@
 __author__ = 'smorris'
 
-
 # Just experimenting with a whois client
 
-# Much thanks to the code on this page: http://www.binarytides.com/python-program-to-fetch-domain-whois-data-using-sockets/
-
 # Imports
-import socket
+import telnetlib
 import sys
 
-# function with sockets to open and read data from a whois query
-def querywhois(server, domain):
-    print server, domain, type(domain)
-    #setup a connection to specified server
-    whoissocket = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
-    whoissocket.connect((server, 43))
-
-    #take the given query and send it to the server
-    whoissocket.send(domain + '\r\n')
-    whoisdata = whoissocket.recv(10000)
-    whoissocket.close()
-    return whoisdata
+# Use a simple telnet connection to query the whois server
+def telnet_connect(server):
+    # Open a telnet server return a connection object
+    connection = telnetlib.Telnet(server, 43)
+    return connection
 
 def querywhois_server_list(domain):
     #parse the whois server list to find the right server for domain
 
-    # Let's test if it is a ip address though
+    # Let's test if it is a ip address though and if so skip to arin for now
     try:
         is_number = int(domain)
         return 'whois.arin.net'
@@ -46,10 +36,10 @@ def format_query(query_site):
     # Determine if commands need to be added to the query
     try:
         is_number = int(query_site[0])
-        output_site = "n " + query_site
+        output_site = "n " + query_site + "\n"
         return output_site
     except:
-        return query_site
+        return query_site + "\n"
 
 if __name__ == "__main__":
     # Get 1st argument from the command line
@@ -64,4 +54,7 @@ if __name__ == "__main__":
     if who_server == False:
         print 'Domain does not have a valid whois server'
     else:
-        print querywhois(who_server, format_query(input_site))
+        #print querywhois(who_server, format_query(input_site))
+        whois_connection = telnet_connect(who_server)
+        whois_connection.write(format_query(input_site))
+        print whois_connection.read_all()
